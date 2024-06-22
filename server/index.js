@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 
+import { userRouter } from "./routes/userRoutes.js";
+
 dotenv.config({path: './.env'});
 
 const app = express();
@@ -11,6 +13,8 @@ const port = process.env.PORT;
 //middlewares
 app.use(express.json());
 app.use(cors());
+
+app.use("/user", userRouter);
 
 //connecting mongo_db
 mongoose.connect(process.env.MONGO_DB_URL);
