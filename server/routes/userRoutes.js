@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 
 //registering new user
 router.post("/register", async (req, res)=>{
-    const {username, password} = req.body;
+    const {username, name, password} = req.body;
 try{
 
     const user = await User.findOne({username});
@@ -19,7 +19,7 @@ try{
     const hashedPassword = await bcrypt.hash(password, 10);
 
     //creating a new user and save
-    const newUser = new User({username, password: hashedPassword});
+    const newUser = new User({username, name, password: hashedPassword});
     await newUser.save();
 
     res.status(201).json({message:"User registers Successfully!"});
@@ -67,7 +67,7 @@ export const verifyToken = (req, res, next)=>{
             next();
         });
     }else{
-        return res.status(401).json({ message: "Invalid user" });
+        return res.sendStatus(401);
     }
 }
 
