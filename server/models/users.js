@@ -10,7 +10,7 @@ const UserSchema = Schema(
       type: Number,
       default: 5000,
     },
-    //purchasedItems:{},
+    purchasedItems:[{type: Schema.Types.ObjectId, ref: "Product", default: []}],
   },
   { timestamps: true }
 );

@@ -41,8 +41,6 @@ const Auth = () => {
         const response = await axios.post(`${url}/login`, {userName, password});
         setErrorPrompt(response.data.message)
 
-        console.log(response)
-
         //getting the token from response
         setCookies(["access_token"], response.data.token);
         setTimeout(()=>{
@@ -53,6 +51,7 @@ const Auth = () => {
 
       }catch(err){
         setErrorPrompt(err.response.data.message);
+        console.log(err)
         setTimeout(()=>{
           resetFields();
         }, 2000);
@@ -77,7 +76,6 @@ const Auth = () => {
 
         try{
           const response = await axios.post(`${url}/register`, {userName, name, password});
-          console.log(response);
           setErrorPrompt(response.data.message)
 
           setTimeout(()=>{

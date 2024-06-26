@@ -1,0 +1,104 @@
+import { useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const Admin = () => {
+  const [cookies, _] = useCookies(["access_token"]);
+  const navigate = useNavigate();
+
+  const [productName, setProductName] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [stockQuantity, setStockQuantity] = useState("");
+
+  const token = cookies.access_token;
+
+  const decoded = jwtDecode(token);
+
+  useEffect(() => {
+    if (!decoded.admin) {
+      alert("You do not have access to this page!");
+
+      setTimeout(() => {
+        navigate("/auth");
+      }, 2000);
+    }
+  }, []);
+
+  return (
+    <div className="py-6 px-4">
+      {decoded.admin ? (
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <section className="flex flex-col items-center gap-4 border-2 rounded-md px-4 py-6 pb-10 shadow-[0_0_8px_5px_rgba(0,0,0,0.1)]">
+            <h1 className="text-xl font-semibold md:text-2xl">Add Products</h1>
+            <form className="flex flex-col lg:px-4 md:text-lg gap-4 w-full">
+              <label for="product-name">Product's Name:</label>
+              <input
+                className={`focus:outline-none border-b-2 w-full border-black text-gray-700`}
+                type="text"
+                id="product-name"
+                name="product-name"
+                placeholder="Enter the product Name"
+                value={productName}
+                onChange={(event) => {
+                  setProductName(event.target.value);
+                }}
+              />
+              <label for="product-name">Product's Name:</label>
+              <textarea
+                className={`focus:outline-none border-b-2 w-full border-black text-gray-700`}
+                type="text"
+                id="product-name"
+                name="product-name"
+                placeholder="Enter the product's description"
+                value={description}
+                rows={2}
+                onChange={(event) => {
+                  setDescription(event.target.value);
+                }}
+              />
+              <label for="price">Product's Price:</label>
+              <input
+                className={`focus:outline-none border-b-2 w-full border-black text-gray-700`}
+                type="number"
+                id="price"
+                name="product-price"
+                placeholder="Enter the price for the product"
+                value={price}
+                onChange={(event) => {
+                  setPrice(
+                    event.target.value === "" ? "" : Number(event.target.value)
+                  );
+                }}
+              />
+              <label for="quantity">Quantity:</label>
+              <input
+                className={`focus:outline-none border-b-2 w-full border-black text-gray-700`}
+                type="number"
+                id="quantity"
+                name="quantity"
+                placeholder="Number of products"
+                value={stockQuantity}
+                onChange={(event) => {
+                  setStockQuantity(
+                    event.target.value === "" ? "" : Number(event.target.value)
+                  );
+                }}
+              />
+              <button className="text-black w-24 p-2 text-xs bg-white md:text-sm md:w-28 lg:w-32 lg:text-lg hover:bg-black hover:text-white md:p-4 border-2 mx-auto border-black">
+                ADD
+              </button>
+            </form>
+          </section>
+          
+        </div>
+      ) : (
+        ""
+      )}
+    </div>
+  );
+};
+
+export default Admin;

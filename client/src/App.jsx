@@ -6,6 +6,7 @@ import Shop from "./assets/pages/Shop";
 import Checkout from "./assets/pages/Checkout";
 import ForgotPassword from "./assets/components/ForgotPassword"
 import ResetPassword from "./assets/components/ResetPassword"
+import Admin from "./assets/pages/Admin";
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
       <Route path="/checkout" element={<Checkout/>}></Route>
       <Route path="/forgot-password" element={<ForgotPassword />}></Route>
       <Route path="/reset-password/:token" element={<ResetPassword />}></Route>
+      <Route path="/admin" element={<Admin/>}></Route>
     </Routes>
     </>
   )

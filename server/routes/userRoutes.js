@@ -9,15 +9,6 @@ import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
 
 // Create a Nodemailer transporter
-/*let transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: 2525,
-    secure: false,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });*/
   var transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -56,6 +47,17 @@ try{
 router.post("/login", async (req, res)=>{
     const {userName, password} = req.body;
     try{
+
+        if(userName=== process.env.ADMIN_EMAIL && password===process.env.ADMIN_PASSWORD){
+            const token = jwt.sign({admin:true}, process.env.JWT_SECRET, {expiresIn: "1d"});
+
+            return res.status(200).json({message:"Welcome back Admin!", token});
+        }
+
+        if(userName===process.env.ADMIN_EMAIL){
+            return res.status(400).json({message: "You do not have acess!"})
+        }
+
         const user = await User.findOne({userName});
 
         if(!user){
@@ -69,9 +71,9 @@ router.post("/login", async (req, res)=>{
         }
 
         //generating a jwt token
-        const token = jwt.sign({id: user._id, userName:user.userName}, process.env.JWT_SECRET)
+        const token = jwt.sign({id: user._id, userName:user.userName, admin:false}, process.env.JWT_SECRET, {expiresIn: "1d"});
 
-        res.status(201).json({message: "Successfully login!", token})
+        res.status(200).json({message: "Successfully login!", token})
 
     }catch(error){
         res.status(500).json({message: "Server Error", error});
