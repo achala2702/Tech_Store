@@ -4,7 +4,7 @@ const UserSchema = Schema(
   {
     //_id: { type: Number, required: true },
     name: {type:String, required:true},
-    username: { type: String, required: true, unique: true },
+    userName: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     available_money: {
       type: Number,
