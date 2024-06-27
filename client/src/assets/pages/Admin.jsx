@@ -3,6 +3,7 @@ import { useCookies } from "react-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import ProductDetails from "../components/ProductDetails";
 
 const Admin = () => {
   const [cookies, _] = useCookies(["access_token"]);
@@ -77,10 +78,10 @@ const Admin = () => {
   };
 
   return (
-    <div className="py-6 px-4">
+    <div className="py-6">
       {decoded.admin ? (
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <section className="flex flex-col items-center gap-4 border-2 rounded-md px-4 py-6 pb-10 shadow-[0_0_8px_5px_rgba(0,0,0,0.1)]">
+        <div className="gap-4 w-full flex flex-col items-center">
+          <section className="flex flex-col items-center gap-4 border-2 rounded-md px-4 py-6 pb-10 shadow-[0_0_8px_5px_rgba(0,0,0,0.1)] md: w-3/4 xl:w-1/2">
             <h1 className="text-xl font-semibold md:text-2xl">Add Products</h1>
             <form
               className="flex flex-col lg:px-4 md:text-lg gap-4 w-full"
@@ -174,6 +175,7 @@ const Admin = () => {
               </button>
             </form>
           </section>
+          <ProductDetails/>
         </div>
       ) : (
         ""
