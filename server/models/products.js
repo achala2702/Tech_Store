@@ -7,6 +7,7 @@ const productSchema = Schema(
     description: { type: String, required: true },
     imgUrl: { type: String, required: true },
     stockQuantity: { type: Number, required: true, min:[0, "Quantitty should not less than 0"] },
+    category: {type: String, required: true},
   },
   { timestamps: true }
 );

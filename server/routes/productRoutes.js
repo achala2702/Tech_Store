@@ -33,7 +33,8 @@ router.get("/", async (req, res)=>{
             price: product.price,
             description: product.description,
             imgUrl: `${product.imgUrl}`,
-            stockQuantity: product.stockQuantity
+            stockQuantity: product.stockQuantity,
+            category: product.category
         }));
 
         res.status(200).json({productsWithImages});
@@ -100,7 +101,7 @@ router.post("/checkout", verifyToken, async (req, res)=>{
 });
 
 router.post("/add-products", verifyToken, upload.single('productImage'), async (req, res)=>{
-    const {productName, price, description, stockQuantity} = req.body;
+    const {productName, price, description, stockQuantity, category} = req.body;
     const imageFile = req.file;
 
     try{
@@ -110,7 +111,8 @@ router.post("/add-products", verifyToken, upload.single('productImage'), async (
             price,
             description,
             imgUrl: `${process.env.BACKEND_URL}/images/${imageFile.filename}`,
-            stockQuantity
+            stockQuantity,
+            category
         });
         
         await newProduct.save();
