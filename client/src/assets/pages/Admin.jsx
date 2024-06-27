@@ -12,8 +12,11 @@ const Admin = () => {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [stockQuantity, setStockQuantity] = useState("");
+  const [productImage, setProductImage] = useState(null);
+  const [errorPrompt, setErrorPrompt] = useState("");
 
   const token = cookies.access_token;
+  const url = import.meta.env.VITE_SERVER_URL_PRODUCT;
 
   const decoded = jwtDecode(token);
 
@@ -27,31 +30,76 @@ const Admin = () => {
     }
   }, []);
 
+      //clearing fields
+      const cleanFields=()=>{
+        setErrorPrompt("");
+        setProductImage(null);
+        setStockQuantity("");
+        setDescription("");
+        setPrice("");
+        setProductName("");
+        
+    }
+
+  //submititng add products
+  const handleSubmit = async (e)=>{
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append('productName', productName);
+    formData.append('price', price);
+    formData.append('description', description);
+    formData.append('stockQuantity', stockQuantity);
+    formData.append('productImage', productImage);
+
+    try{
+        const response = await axios.post(`${url}/add-products`, formData, {headers:{
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `${token}`
+        }});
+
+        setErrorPrompt(response.data.message);
+        setTimeout(()=>{
+            cleanFields();
+        }, 3000);
+
+
+    }catch(err){
+        console.log(err)
+        setErrorPrompt(err.response.data.message);
+
+        setTimeout(()=>{
+            cleanFields();
+        }, 3000);
+    }
+    
+  }
+
   return (
     <div className="py-6 px-4">
       {decoded.admin ? (
         <div className="grid grid-cols-1 md:grid-cols-2">
           <section className="flex flex-col items-center gap-4 border-2 rounded-md px-4 py-6 pb-10 shadow-[0_0_8px_5px_rgba(0,0,0,0.1)]">
             <h1 className="text-xl font-semibold md:text-2xl">Add Products</h1>
-            <form className="flex flex-col lg:px-4 md:text-lg gap-4 w-full">
-              <label for="product-name">Product's Name:</label>
+            <form className="flex flex-col lg:px-4 md:text-lg gap-4 w-full" onSubmit={handleSubmit}>
+              <label htmlFor="productName">Product's Name:</label>
               <input
                 className={`focus:outline-none border-b-2 w-full border-black text-gray-700`}
                 type="text"
-                id="product-name"
-                name="product-name"
+                id="productName"
+                name="productName"
                 placeholder="Enter the product Name"
                 value={productName}
                 onChange={(event) => {
                   setProductName(event.target.value);
                 }}
               />
-              <label for="product-name">Product's Name:</label>
+              <label htmlFor="description">Product's Description:</label>
               <textarea
                 className={`focus:outline-none border-b-2 w-full border-black text-gray-700`}
                 type="text"
-                id="product-name"
-                name="product-name"
+                id="description"
+                name="description"
                 placeholder="Enter the product's description"
                 value={description}
                 rows={2}
@@ -59,7 +107,7 @@ const Admin = () => {
                   setDescription(event.target.value);
                 }}
               />
-              <label for="price">Product's Price:</label>
+              <label htmlFor="price">Product's Price:</label>
               <input
                 className={`focus:outline-none border-b-2 w-full border-black text-gray-700`}
                 type="number"
@@ -73,12 +121,12 @@ const Admin = () => {
                   );
                 }}
               />
-              <label for="quantity">Quantity:</label>
+              <label htmlFor="stockQuantity">Quantity:</label>
               <input
                 className={`focus:outline-none border-b-2 w-full border-black text-gray-700`}
                 type="number"
-                id="quantity"
-                name="quantity"
+                id="stockQuantity"
+                name="stockQuantity"
                 placeholder="Number of products"
                 value={stockQuantity}
                 onChange={(event) => {
@@ -87,6 +135,17 @@ const Admin = () => {
                   );
                 }}
               />
+              <label htmlFor="productImage">Upload product image:</label>
+              <input
+              type="file"
+              id="productImage"
+              name="productImage"
+              accept="image/*"
+              onChange={(event)=>{setProductImage(event.target.files[0])}}
+              />
+              <p className={`${errorPrompt === "" ? "hidden" : ""}`}>
+            {errorPrompt}
+          </p>
               <button className="text-black w-24 p-2 text-xs bg-white md:text-sm md:w-28 lg:w-32 lg:text-lg hover:bg-black hover:text-white md:p-4 border-2 mx-auto border-black">
                 ADD
               </button>

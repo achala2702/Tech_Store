@@ -11,7 +11,7 @@ import Admin from "./assets/pages/Admin";
 function App() {
 
   return (
-    <>
+    <div className="overflow-hidden">
     <NavBar/>
     <Routes>
       <Route path="/" element={<Shop/>}></Route>
@@ -22,7 +22,7 @@ function App() {
       <Route path="/reset-password/:token" element={<ResetPassword />}></Route>
       <Route path="/admin" element={<Admin/>}></Route>
     </Routes>
-    </>
+    </div>
   )
 }
 

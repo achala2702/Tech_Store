@@ -2,15 +2,41 @@ import express from "express";
 import Product from "../models/products.js";
 import User from "../models/users.js";
 import { verifyToken } from "./userRoutes.js";
+import multer from "multer";
+import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "./.env" });
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb)=>{
+        cb(null, "./images")
+    },
+    filename: (req, file, cb)=>{
+        console.log(file);
+        cb(null, Date.now() + path.extname(file.originalname))
+    }
+});
+
+const upload = multer({storage:storage});
 
 router.get("/", async (req, res)=>{
 
     try{
         const products = await Product.find({});
 
-        res.status(200).json({products});
+        const productsWithImages = products.map(product=>({
+            _id: product._id,
+            productName: product.productName,
+            price: product.price,
+            description: product.description,
+            imgUrl: `${product.imgUrl}`,
+            stockQuantity: product.stockQuantity
+        }));
+
+        res.status(200).json({productsWithImages});
     }catch(err){
         res.status(500).json({message:"Error occured!"})
     }
@@ -73,8 +99,27 @@ router.post("/checkout", verifyToken, async (req, res)=>{
     }
 });
 
-router.post("/add-products", verifyToken, async (req, res)=>{
-    
-})
+router.post("/add-products", verifyToken, upload.single('productImage'), async (req, res)=>{
+    const {productName, price, description, stockQuantity} = req.body;
+    const imageFile = req.file;
+
+    try{
+
+        const newProduct = await Product({
+            productName,
+            price,
+            description,
+            imgUrl: `${process.env.BACKEND_URL}/images/${imageFile.filename}`,
+            stockQuantity
+        });
+        
+        await newProduct.save();
+
+        res.status(201).json({message: "Product added successfully!"})
+    }catch(err){
+        res.status(500).json({message:"Server error!"})
+    }
+
+});
 
 export {router as productRouter};
