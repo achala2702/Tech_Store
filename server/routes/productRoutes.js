@@ -22,24 +22,26 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage:storage});
 
-router.get("/", async (req, res)=>{
+router.get("/", async (req, res) => {
+    const { q } = req.query;
 
-    try{
+    try {
         const products = await Product.find({});
 
-        const productsWithImages = products.map(product=>({
-            _id: product._id,
-            productName: product.productName,
-            price: product.price,
-            description: product.description,
-            imgUrl: `${product.imgUrl}`,
-            stockQuantity: product.stockQuantity,
-            category: product.category
-        }));
-
-        res.status(200).json({productsWithImages});
-    }catch(err){
-        res.status(500).json({message:"Error occured!"})
+        if (q) {
+            const keys = ['productName', 'category'];
+            const search = (products) => {
+                return products.filter((product) =>
+                    keys.some((key) => product[key].toLowerCase().includes(q.toLowerCase()))
+                );
+            };
+            return res.status(200).json({products: search(products)});
+        } else {
+            return res.status(200).json({products});
+        }
+    } catch (err) {
+        console.error("Error occurred:", err);
+        res.status(500).json({ message: "Error occurred!" });
     }
 });
 
