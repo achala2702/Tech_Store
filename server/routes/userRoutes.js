@@ -155,6 +155,7 @@ export const verifyToken = (req, res, next)=>{
         jwt.verify(token, process.env.JWT_SECRET, (error)=>{
             if(error){
                 return res.sendStatus(403);
+                
             }
             next();
         });
