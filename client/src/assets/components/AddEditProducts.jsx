@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
 
 const AddEditProducts = ({ token, product }) => {
   const [productName, setProductName] = useState("");
@@ -47,16 +48,18 @@ const AddEditProducts = ({ token, product }) => {
     formData.append("stockQuantity", stockQuantity);
     formData.append("category", category);
     if (productImage) {
-        formData.append("productImage", productImage);
-      }
+      formData.append("productImage", productImage);
+    }
 
     try {
       if (product) {
-        formData.append("_id", product._id)
-        const response = await axios.put(`${url}/edit-product`, formData, {headers:{
-          "Content-Type": "multipart/form-data",
-          Authorization: `${token}`,
-        },});
+        formData.append("_id", product._id);
+        const response = await axios.put(`${url}/edit-product`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `${token}`,
+          },
+        });
         setErrorPrompt(response.data.message);
       } else {
         const response = await axios.post(`${url}/add-products`, formData, {
@@ -76,18 +79,20 @@ const AddEditProducts = ({ token, product }) => {
     }
   };
 
-  const handleText = ()=>{
-    if(product){
-        return "Update"
-    }else{
-        return "ADD"
+  const handleText = () => {
+    if (product) {
+      return "Update";
+    } else {
+      return "ADD";
     }
-  }
+  };
 
   return (
     <div className="w-full flex justify-center">
       <section className="flex flex-col items-center gap-4 border-2 rounded-md px-4 py-6 pb-10 shadow-[0_0_8px_5px_rgba(0,0,0,0.1)] md: w-3/4 xl:w-1/2">
-        <h1 className="text-xl font-semibold md:text-2xl">{handleText()} Products</h1>
+        <h1 className="text-xl font-semibold md:text-2xl">
+          {handleText()} Products
+        </h1>
         <form
           className="flex flex-col lg:px-4 md:text-lg gap-4 w-full"
           onSubmit={handleSubmit}
@@ -177,9 +182,14 @@ const AddEditProducts = ({ token, product }) => {
           <p className={`${errorPrompt === "" ? "hidden" : ""}`}>
             {errorPrompt}
           </p>
-          <button className="text-black w-24 p-2 text-xs bg-white md:text-sm md:w-28 lg:w-32 lg:text-lg hover:bg-black hover:text-white md:p-4 border-2 mx-auto border-black">
-          {handleText()}
-          </button>
+          <motion.button
+            initial={{ scale: 1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.1 }}
+            className="text-black w-24 p-2 text-xs bg-white md:text-sm md:w-28 lg:w-32 lg:text-lg hover:bg-black hover:text-white md:p-4 border-2 mx-auto border-black"
+          >
+            {handleText()}
+          </motion.button>
         </form>
       </section>
     </div>

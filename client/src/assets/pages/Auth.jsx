@@ -1,7 +1,8 @@
 import { useState } from "react";
-import axios from 'axios';
-import {useCookies} from "react-cookie";
-import {useNavigate} from "react-router-dom";
+import axios from "axios";
+import { useCookies } from "react-cookie";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const Auth = () => {
   const [heading, setHeading] = useState("Log In");
@@ -29,73 +30,80 @@ const Auth = () => {
       setErrorPrompt("Please enter a valid email address");
       return;
     }
-    if (!passwordPattern.test(password)){
-      setErrorPrompt("Password must be 8-24 characters long, contain at least one number, and one uppercase letter");
-      setPassword("")
-      setConfirmPassword("")
-      return
+    if (!passwordPattern.test(password)) {
+      setErrorPrompt(
+        "Password must be 8-24 characters long, contain at least one number, and one uppercase letter"
+      );
+      setPassword("");
+      setConfirmPassword("");
+      return;
     }
 
-    if(heading === 'Log In'){
-      try{
-        const response = await axios.post(`${url}/login`, {userName, password});
-        setErrorPrompt(response.data.message)
+    if (heading === "Log In") {
+      try {
+        const response = await axios.post(`${url}/login`, {
+          userName,
+          password,
+        });
+        setErrorPrompt(response.data.message);
 
         //getting the token from response
         setCookies(["access_token"], response.data.token);
-        setTimeout(()=>{
+        setTimeout(() => {
           resetFields();
           navigate("/");
         }, 2000);
-        
-
-      }catch(err){
+      } catch (err) {
         setErrorPrompt(err.response.data.message);
-        console.log(err)
-        setTimeout(()=>{
+        console.log(err);
+        setTimeout(() => {
           resetFields();
         }, 2000);
       }
-
-    }else{
-      if(password !== confirmPassword){
-        setErrorPrompt("password does not match")
-        setPassword("")
-        setConfirmPassword("")
+    } else {
+      if (password !== confirmPassword) {
+        setErrorPrompt("password does not match");
+        setPassword("");
+        setConfirmPassword("");
         return;
       }
-      if(!password || !confirmPassword || !name || !userName) {
-        setErrorPrompt("Please fill out all the fields")
+      if (!password || !confirmPassword || !name || !userName) {
+        setErrorPrompt("Please fill out all the fields");
         return;
       }
-      if(!namePattern.test(name)){
+      if (!namePattern.test(name)) {
         setErrorPrompt("Invalid Character in Name!");
         return;
       }
-      if(passwordPattern.test(password) && emailPattern.test(userName) && password === confirmPassword && namePattern.test(name)){
+      if (
+        passwordPattern.test(password) &&
+        emailPattern.test(userName) &&
+        password === confirmPassword &&
+        namePattern.test(name)
+      ) {
+        try {
+          const response = await axios.post(`${url}/register`, {
+            userName,
+            name,
+            password,
+          });
+          setErrorPrompt(response.data.message);
 
-        try{
-          const response = await axios.post(`${url}/register`, {userName, name, password});
-          setErrorPrompt(response.data.message)
-
-          setTimeout(()=>{
-            handleClickTags('Log In');
+          setTimeout(() => {
+            handleClickTags("Log In");
           }, 2000);
-
-        }catch(err){
-            setErrorPrompt(err.response.data.message)
-            setTimeout(()=>{
-              resetFields();
-            }, 2000);
-
+        } catch (err) {
+          setErrorPrompt(err.response.data.message);
+          setTimeout(() => {
+            resetFields();
+          }, 2000);
         }
       }
     }
-
   };
 
   const handleForgotPassword = () => {
-    navigate("/forgot-password")
+    navigate("/forgot-password");
   };
 
   const resetFields = () => {
@@ -117,7 +125,10 @@ const Auth = () => {
         <h1 className="text-xl md:text-2xl xl:text-2xl font-semibold">
           {heading}
         </h1>
-        <form className="flex flex-col items-center w-11/12 gap-10" onSubmit={handleLoginClick}>
+        <form
+          className="flex flex-col items-center w-11/12 gap-10"
+          onSubmit={handleLoginClick}
+        >
           <input
             className="focus:outline-none w-full border-b-2 border-black text-gray-700"
             type="email"
@@ -181,11 +192,14 @@ const Auth = () => {
             </span>
             .
           </p>
-          <button
+          <motion.button
+            initial={{ scale: 1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.1 }}
             className="text-black w-24 p-2 text-xs bg-white md:text-sm md:w-28 lg:w-32 lg:text-lg hover:bg-black hover:text-white md:p-4 border-2 border-black"
           >
             {heading}
-          </button>
+          </motion.button>
         </form>
         <div className="flex md:text-xl text-sm justify-between w-11/12 px-4 py-4">
           <p

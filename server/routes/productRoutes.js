@@ -6,6 +6,10 @@ import multer from "multer";
 import path from "path";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import Stripe from "stripe";
+import bodyParser from 'body-parser';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET);
 
 dotenv.config({ path: "./.env" });
 
@@ -73,12 +77,16 @@ router.get("/", async (req, res) => {
 
 router.post("/checkout", verifyToken, async (req, res) => {
   const { cart_items } = req.body;
+  const user_id = req.user.id;
 
   try {
-    let user_id;
     const user = await User.findById({ _id: user_id });
 
-    const product_ids = Object.keys(cart_items);
+    let product_ids = [];
+
+    for (let item of cart_items) {
+      product_ids.push(String(item._id));
+    }
 
     const product_list = await Product.find({ _id: { $in: product_ids } });
 
@@ -93,9 +101,10 @@ router.post("/checkout", verifyToken, async (req, res) => {
 
     //getting the total price for the quantity
     let totalPrice = 0;
-    for (const item in product_ids) {
+    let line_items = [];
+    for (const item of cart_items) {
       const product = product_list.find(
-        (product) => String(product._id) === item
+        (product) => String(product._id) === item._id
       );
 
       if (!product) {
@@ -106,30 +115,119 @@ router.post("/checkout", verifyToken, async (req, res) => {
         return res.status(400).json({ message: "Not enough Stock!" });
       }
 
-      totalPrice += product.price * cart_items[item];
+      totalPrice += product.price * item.count;
 
-      if (user.available_money < totalPrice) {
-        return res.status(400).json({ message: "Not Enough Credits!" });
+      if (totalPrice >= 1000000) {
+        return res
+          .status(400)
+          .json({ message: "Maximum credits allowed is LKR  999 999" });
       }
+
+      line_items.push({
+        price_data: {
+          currency: "lkr",
+          product_data: {
+            name: product.productName,
+            description: product.description,
+            images: [product.imgUrl],
+          },
+          unit_amount: product.price * 100,
+        },
+        quantity: item.count,
+      });
     }
 
-    //updating available mony and purchased items
-    user.available_money -= totalPrice;
-    user.purchasedItems.push(...product_ids);
-
+    const paymentSession = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      success_url: process.env.FRONTEND_URL,
+      cancel_url: process.env.FRONTEND_URL,
+      line_items: line_items,
+      customer_email: user.userName,
+      metadata: {
+        product_Ids: JSON.stringify(product_ids),
+      },
+      expand: ['line_items'],
+    });
+    /*
     await user.save();
 
     //upadating the stock quantity in db
     await Product.updateMany(
       { _id: { $in: product_ids } },
       { $inc: { stockQuantity: -1 } }
-    );
+    );*/
 
     //sending items to client
-    res.status(200).json({ purchasedItems: user.purchasedItems });
+    res.status(200).json({ message: "success!", url: paymentSession.url });
   } catch (err) {
+    console.log(err);
     res.status(500).json({ message: "error occured!" });
   }
+});
+// Endpoint to handle Stripe webhook events
+router.post('/webhook', async (req, res) => {
+  let event;
+
+  try {
+    event = req.body;
+  } catch (err) {
+
+    console.log(err)
+    return res.status(400).send({WebhookError: `${err.message}`});
+  }
+
+  // Handle different event types
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+
+    try {
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+
+      let product_ids = JSON.parse(session.metadata.product_Ids);
+
+      const user = await User.findOne({ userName: session.customer_email });
+
+      if (!user) {
+        console.log('User not found');
+        return res.status(400).send('User not found');
+      }
+
+      for (let productId of product_ids) {
+
+        const product = await Product.findById(productId);
+
+        if (product) {
+          const item = lineItems.data.find(item => item.description === product.productName);
+          product.stockQuantity -= item.quantity;
+          await product.save();
+
+          const existingPurchase = user.purchasedItems.find(item => item.product.equals(productId));
+
+          if (existingPurchase) {
+            // If the user already purchased this product, increment the count
+            existingPurchase.count += item.quantity;
+          } else {
+            // Otherwise, add a new entry with product ID and count
+            user.purchasedItems.push({ product: productId, count: item.quantity });
+          }
+
+          //user.purchasedItems.push({ product: productId, count: item.quantity });
+          
+      };
+    }
+    await user.save();
+
+      console.log('Payment was successful:', session);
+    } catch (err) {
+      console.log(`Error updating user or product data: ${err.message}`);
+      return res.status(500).send(`Error updating user or product data: ${err.message}`);
+    }
+  } else {
+    console.log('Unhandled event type:', event.type);
+  }
+
+  res.json({ received: true });
 });
 
 router.post(
@@ -141,8 +239,6 @@ router.post(
       req.body;
     const token = req.headers.authorization;
     const imageFile = req.file;
-
-    console.log(productName);
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);

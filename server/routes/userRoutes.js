@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import Product from "../models/products.js";
 
 dotenv.config({ path: "./.env" });
 
@@ -148,21 +149,58 @@ router.post("/forgot-password", async (req, res) => {
   });
 
 //middleware for verify token
-export const verifyToken = (req, res, next)=>{
-    const token = req.headers.authorization;
+export const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+  if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
 
-    if(token){
-        jwt.verify(token, process.env.JWT_SECRET, (error)=>{
-            if(error){
-                return res.sendStatus(403);
-                
-            }
-            next();
-        });
-    }else{
-        return res.sendStatus(401);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (ex) {
+    res.status(400).json({ error: 'Invalid token.' });
+  }
+};
+
+router.get("/get-products", verifyToken, async (req, res)=>{
+  const user_id = req.user.id;
+
+  try{
+    const user = await User.findById({_id: user_id});
+
+    
+
+    const product_ids = user.purchasedItems.map((item)=>item.product);
+
+    const product_list = await Product.find({ _id: { $in: product_ids } });
+
+    const productCounts = {};
+    user.purchasedItems.forEach(item => {
+      productCounts[item.product.toString()] = item.count; // Store counts indexed by product ID as strings
+    });
+
+    const productsWithCounts = product_list.map(product => ({
+      ...product.toObject(),
+      count: productCounts[product._id.toString()] || 0
+    }));
+
+
+    console.log(productsWithCounts)
+
+
+
+    if(!product_list){
+      return res.status(200).json({message: "Empty"})
     }
-}
+
+    res.status(200).json({message: "products available", products: productsWithCounts});
+
+  }catch(err){
+    console.log(err);
+    res.status(500).json({message: "Error Occured!"})
+  }
+
+});
 
 
 export {router as userRouter};

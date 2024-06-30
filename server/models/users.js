@@ -6,11 +6,10 @@ const UserSchema = Schema(
     name: {type:String, required:true},
     userName: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    available_money: {
-      type: Number,
-      default: 5000,
-    },
-    purchasedItems:[{type: Schema.Types.ObjectId, ref: "Product", default: []}],
+    purchasedItems: [{
+      product: { type: Schema.Types.ObjectId, ref: "Product" },
+      count: { type: Number, default: 0 }
+    }],
   },
   { timestamps: true }
 );
