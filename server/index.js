@@ -4,6 +4,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 
 import { userRouter } from "./routes/userRoutes.js";
+import { productRouter } from "./routes/productRoutes.js";
 
 dotenv.config({path: './.env'});
 
@@ -13,8 +14,14 @@ const port = process.env.PORT;
 //middlewares
 app.use(express.json());
 app.use(cors());
+app.use('/images', express.static('./images'));
 
+//user routes
 app.use("/user", userRouter);
+
+//product routes
+app.use("/product", productRouter);
+
 
 //connecting mongo_db
 mongoose.connect(process.env.MONGO_DB_URL);
