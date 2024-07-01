@@ -178,6 +178,7 @@ const AddEditProducts = ({ token, product }) => {
             <option value="camera">Camera</option>
             <option value="laptops">Laptops</option>
             <option value="smartWatches">Smart Watches</option>
+            <option value="audioDevices">Audio Devices</option>
           </select>
           <p className={`${errorPrompt === "" ? "hidden" : ""}`}>
             {errorPrompt}

@@ -51,6 +51,10 @@ const Auth = () => {
         setCookies(["access_token"], response.data.token);
         setTimeout(() => {
           resetFields();
+          if(response.data.admin){
+            navigate('/admin');
+            return;
+          }
           navigate("/");
         }, 2000);
       } catch (err) {
@@ -192,6 +196,8 @@ const Auth = () => {
             </span>
             .
           </p>
+          <p className="flex flex-col gap-2"><span><span className="font-semibold">Admin UserName:</span> admin@techstore.com</span><span><span className="font-semibold"> Admin password:</span> Techstoreadmin0</span></p>
+          <p><span className="font-semibold">Note:</span> Admin can only update products cannot buy them</p>
           <motion.button
             initial={{ scale: 1 }}
             whileTap={{ scale: 0.9 }}

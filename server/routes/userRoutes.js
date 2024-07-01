@@ -52,7 +52,7 @@ router.post("/login", async (req, res)=>{
         if(userName=== process.env.ADMIN_EMAIL && password===process.env.ADMIN_PASSWORD){
             const token = jwt.sign({admin:true}, process.env.JWT_SECRET, {expiresIn: "1d"});
 
-            return res.status(200).json({message:"Welcome back Admin!", token});
+            return res.status(200).json({admin: true, message:"Welcome back Admin!", token});
         }
 
         if(userName===process.env.ADMIN_EMAIL){

@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import SearchIcon from "@mui/icons-material/Search";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 import { jwtDecode } from "jwt-decode";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 
-const Shop = ({addToCart, cartItems, products, setSearch, search}) => {
-  /*const [products, setProducts] = useState([]);
-  const url = import.meta.env.VITE_SERVER_URL_PRODUCT;
-  const [search, setSearch] = useState("");*/
-  const [cookies, _,removeCookie] = useCookies(["access_token"]);
-  const [decoded, setDecoded] = useState('')
+const Shop = ({ addToCart, cartItems, products, setSearch, search }) => {
+  const [cookies, _, removeCookie] = useCookies(["access_token"]);
+  const [decoded, setDecoded] = useState("");
 
   const token = cookies.access_token;
 
@@ -25,21 +22,28 @@ const Shop = ({addToCart, cartItems, products, setSearch, search}) => {
     return false;
   };
 
+  useEffect(() => {
+    try{
+      const decodedToken = jwtDecode(token);
+      setDecoded(decodedToken);
+    }catch(err){
+      console.log("invalid token")
+    }
+
+  }, []);
+
   const handleAddToCartClick = (product) => {
     if (token) {
       try {
-        const decodedToken = jwtDecode(token);
-        setDecoded(decodedToken);
-
         const currentTime = Date.now() / 1000;
-        if (decodedToken.exp < currentTime) {
+        if (decoded && decoded.exp < currentTime) {
           alert("Your session has expired. Please log in again.");
           removeCookie("access_token");
           navigate("/auth");
           return;
         }
 
-        if (decodedToken.admin) {
+        if (decoded && decoded.admin) {
           alert("Admin can not buy products!");
           return;
         }
@@ -49,7 +53,7 @@ const Shop = ({addToCart, cartItems, products, setSearch, search}) => {
         removeCookie("access_token");
         navigate("/auth");
       }
-    }else{
+    } else {
       alert("Please log In to add Items to Cart");
       return;
     }
@@ -62,19 +66,6 @@ const Shop = ({addToCart, cartItems, products, setSearch, search}) => {
     }
   };
 
- /* const fetchProducts = async (search) => {
-    try {
-      const response = await axios.get(`${url}/?q=${search}`);
-      setProducts(response.data.products);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchProducts(search);
-  }, [search]);*/
-
   function formatPrice(number) {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -84,10 +75,23 @@ const Shop = ({addToCart, cartItems, products, setSearch, search}) => {
 
   return (
     <>
-      <div className="bg-black">
-        <section className="ml-auto w-56 md:w-60 lg:w-72 px-4 flex gap-2">
+      <div className="bg-black px-2 flex justify-between pb-2">
+        {decoded.admin ? (
+          <motion.section
+            initial={{ scale: 1 }}
+            whileTap={{ scale: 0.9 }}
+            transition={{ duration: 0.1 }}
+            onClick={()=>{navigate("/admin")}}
+            className="text-white text-sm md:text-base lg:p-4 cursor-pointer rounded-md text-center p-2 bg-red-800"
+          >
+            Admin Panel
+          </motion.section>
+        ) : (
+          ""
+        )}
+        <section className={`md:w-60 lg:w-72 px-4 justify-center items-center flex gap-2 ${!decoded.admin? "ml-auto":''}`}>
           <input
-            className={`focus:outline-none border-b-2 w-full border-black text-gray-700 rounded-md`}
+            className={`focus:outline-none border-b-2 p-2 w-full border-black text-gray-700 rounded-md`}
             type="text"
             id="search"
             name="search"
@@ -127,9 +131,9 @@ const Shop = ({addToCart, cartItems, products, setSearch, search}) => {
               {product.stockQuantity === 0 ? "Out of Stock" : "In Stock"}
             </p>
             <motion.button
-                      initial={{ scale: 1 }}
-                      whileTap={{ scale: 0.9 }}
-                      transition={{ duration: 0.1 }}
+              initial={{ scale: 1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ duration: 0.1 }}
               className="text-black w-24 p-2 text-xs bg-white md:text-sm md:w-28 lg:text-sm hover:bg-black hover:text-white md:py-4 rounded-md border-2 border-black"
               disabled={product.stockQuantity === 0}
               onClick={() => handleAddToCartClick(product)}

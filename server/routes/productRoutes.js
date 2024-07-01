@@ -7,7 +7,6 @@ import path from "path";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
-import bodyParser from 'body-parser';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
 
@@ -140,7 +139,7 @@ router.post("/checkout", verifyToken, async (req, res) => {
     const paymentSession = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
-      success_url: process.env.FRONTEND_URL,
+      success_url: `${process.env.FRONTEND_URL}/purchased-items`,
       cancel_url: process.env.FRONTEND_URL,
       line_items: line_items,
       customer_email: user.userName,
@@ -149,14 +148,6 @@ router.post("/checkout", verifyToken, async (req, res) => {
       },
       expand: ['line_items'],
     });
-    /*
-    await user.save();
-
-    //upadating the stock quantity in db
-    await Product.updateMany(
-      { _id: { $in: product_ids } },
-      { $inc: { stockQuantity: -1 } }
-    );*/
 
     //sending items to client
     res.status(200).json({ message: "success!", url: paymentSession.url });
