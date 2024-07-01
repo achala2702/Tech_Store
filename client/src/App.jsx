@@ -9,6 +9,7 @@ import ForgotPassword from "./assets/components/ForgotPassword"
 import ResetPassword from "./assets/components/ResetPassword"
 import Admin from "./assets/pages/Admin";
 import axios from "axios";
+import Footer from "./assets/components/Footer";
 
 function App() {
 
@@ -105,6 +106,7 @@ function App() {
       <Route path="/reset-password/:token" element={<ResetPassword />}></Route>
       <Route path="/admin" element={<Admin/>}></Route>
     </Routes>
+    <Footer/>
     </div>
   )
 }

@@ -202,8 +202,6 @@ router.post('/webhook', async (req, res) => {
             // Otherwise, add a new entry with product ID and count
             user.purchasedItems.push({ product: productId, count: item.quantity });
           }
-
-          //user.purchasedItems.push({ product: productId, count: item.quantity });
           
       };
     }
