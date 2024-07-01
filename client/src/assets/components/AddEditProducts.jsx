@@ -105,6 +105,7 @@ const AddEditProducts = ({ token, product }) => {
             name="productName"
             placeholder="Enter the product Name"
             value={productName}
+            required
             onChange={(event) => {
               setProductName(event.target.value);
             }}
@@ -118,6 +119,7 @@ const AddEditProducts = ({ token, product }) => {
             placeholder="Enter the product's description"
             value={description}
             rows={2}
+            required
             onChange={(event) => {
               setDescription(event.target.value);
             }}
@@ -130,6 +132,7 @@ const AddEditProducts = ({ token, product }) => {
             name="product-price"
             placeholder="Enter the price for the product"
             value={price}
+            required
             onChange={(event) => {
               setPrice(
                 event.target.value === "" ? "" : Number(event.target.value)
@@ -144,6 +147,7 @@ const AddEditProducts = ({ token, product }) => {
             name="stockQuantity"
             placeholder="Number of products"
             value={stockQuantity}
+            required
             onChange={(event) => {
               setStockQuantity(
                 event.target.value === "" ? "" : Number(event.target.value)
@@ -166,6 +170,7 @@ const AddEditProducts = ({ token, product }) => {
             name="category"
             className="text-gray-700"
             value={category !== null ? category : ""}
+            required
             onChange={(event) => {
               setCategory(event.target.value);
             }}
