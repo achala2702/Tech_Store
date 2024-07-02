@@ -39,7 +39,7 @@ const Checkout = ({
   }
 
   return (
-    <div className="flex flex-col items-center w-full py-6 px-4">
+    <div className="flex flex-col min-h-screen items-center w-full py-6 px-4">
       <motion.button
         initial={{ scale: 1 }}
         whileTap={{ scale: 0.9 }}
