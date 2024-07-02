@@ -35,7 +35,7 @@ const Purchased_items = () => {
 
 
   return (
-    <div>
+    <div className='min-h-screen '>
       {products.map((product) => {
         return (
           <div
