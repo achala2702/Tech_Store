@@ -56,6 +56,13 @@ Securely complete your purchase using Stripe's payment processing.
 
 ![Screenshot 2024-07-08 085843](https://github.com/achala2702/Tech_Store/assets/158311300/37c22062-960d-41be-af3d-73fcc874d6d4)
 
+Purchase History:
+
+Users can see their purchased histroy.
+
+![Screenshot 2024-07-08 085745](https://github.com/achala2702/Tech_Store/assets/158311300/09d713de-a9a0-4a69-91ba-87f66492de30)
+
+
 Admin Dashboard:
 
 Admins can log in to manage product inventory, including adding, removing, or editing product details.
