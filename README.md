@@ -13,11 +13,15 @@ Responsive Design: Built with React and Tailwind CSS, our website offers a seaml
 
 Database Integration: MongoDB is used to store product information and user data, ensuring efficient management and retrieval.
 
-Technologies Used:
+# Technologies Used:
 
 Frontend: React.js, Tailwind CSS
 
 Backend: Express.js
+
+User Authentication: Json Web Token(JWT)
+
+Data Encription: Bcrypt
 
 Database: MongoDB
 
